@@ -3,7 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>优酷电影展示</title>
+    <title>影视50+</title>
+    <link rel="icon" type="image/png" href="logo.png">
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
     <style>
         body {
@@ -157,53 +158,150 @@
         .play-button:hover {
             background: rgba(59, 130, 246, 0.9);
         }
-        .page-title {
+        .hd-button {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 1000;
+            background: linear-gradient(45deg, #FF4B2B, #FF416C);
             color: white;
-            text-align: center;
-            padding: 2rem 0;
-            font-size: 2.5rem;
-            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+            padding: 0.75rem 1.5rem;
+            border-radius: 50px;
+            text-decoration: none;
+            font-weight: bold;
+            box-shadow: 0 4px 15px rgba(255, 75, 43, 0.3);
+            transition: all 0.3s ease;
         }
-        .loading {
+        .hd-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(255, 75, 43, 0.4);
+        }
+        .refresh-button {
+            position: fixed;
+            top: 80px;
+            right: 20px;
+            z-index: 1000;
+            background: linear-gradient(45deg, #4CAF50, #45a049);
+            color: white;
+            padding: 0.75rem 1.5rem;
+            border-radius: 50px;
+            text-decoration: none;
+            font-weight: bold;
+            box-shadow: 0 4px 15px rgba(76, 175, 80, 0.3);
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+        .refresh-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(76, 175, 80, 0.4);
+        }
+        .password-modal {
+            display: none;
             position: fixed;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            background: rgba(0, 0, 0, 0.8);
-            display: flex;
-            justify-content: center;
-            align-items: center;
+            background-color: rgba(0, 0, 0, 0.8);
             z-index: 2000;
         }
-        .loading-text {
-            color: white;
-            font-size: 1.5rem;
-            text-align: center;
+        .password-modal-content {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: #2a2a2a;
+            padding: 2rem;
+            border-radius: 12px;
+            width: 300px;
         }
-        .refresh-button {
-            position: fixed;
-            top: 20px;
-            right: 20px;
-            background: rgba(59, 130, 246, 0.9);
+        .password-input {
+            width: 100%;
+            padding: 0.75rem;
+            margin: 1rem 0;
+            border: 1px solid #444;
+            border-radius: 6px;
+            background-color: #333;
             color: white;
-            padding: 0.5rem 1rem;
-            border-radius: 50px;
+        }
+        .password-button {
+            width: 100%;
+            padding: 0.75rem;
+            background: linear-gradient(45deg, #4CAF50, #45a049);
+            color: white;
+            border: none;
+            border-radius: 6px;
             cursor: pointer;
-            z-index: 100;
-            transition: all 0.3s ease;
+            font-weight: bold;
         }
-        .refresh-button:hover {
-            background: rgba(59, 130, 246, 1);
-            transform: scale(1.05);
+        .password-button:hover {
+            background: linear-gradient(45deg, #45a049, #4CAF50);
+        }
+        .progress-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.8);
+            z-index: 2000;
+        }
+        .progress-content {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: #2a2a2a;
+            padding: 2rem;
+            border-radius: 12px;
+            width: 400px;
+        }
+        .progress-bar {
+            width: 100%;
+            height: 20px;
+            background-color: #444;
+            border-radius: 10px;
+            overflow: hidden;
+            margin: 1rem 0;
+        }
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(45deg, #4CAF50, #45a049);
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+        .progress-text {
+            color: white;
+            text-align: center;
+            margin-top: 1rem;
         }
     </style>
 </head>
 <body>
-    <h1 class="page-title">优酷电影精选</h1>
+    <a href="https://movie.dos7.cn/" target="_blank" class="hd-button">进入全高清</a>
+    <button onclick="showPasswordModal()" class="refresh-button">刷新数据</button>
     
-    <button class="refresh-button" onclick="refreshData()">刷新数据</button>
+    <!-- 密码输入弹窗 -->
+    <div id="passwordModal" class="password-modal">
+        <div class="password-modal-content">
+            <h2 class="text-white text-xl mb-4">请输入密码</h2>
+            <input type="password" id="passwordInput" class="password-input" placeholder="请输入密码">
+            <button onclick="verifyPassword()" class="password-button">确认</button>
+        </div>
+    </div>
     
+    <!-- 进度条弹窗 -->
+    <div id="progressModal" class="progress-modal">
+        <div class="progress-content">
+            <h2 class="text-white text-xl mb-4">正在刷新数据</h2>
+            <div class="progress-bar">
+                <div id="progressFill" class="progress-fill"></div>
+            </div>
+            <div id="progressText" class="progress-text">准备中...</div>
+        </div>
+    </div>
+
     <div class="masonry-grid" id="movieGrid">
         <!-- Movies will be loaded here -->
     </div>
@@ -218,97 +316,46 @@
         </div>
     </div>
 
-    <!-- 加载提示 -->
-    <div id="loading" class="loading" style="display: none;">
-        <div class="loading-text">
-            正在更新数据，请稍候...
-        </div>
-    </div>
-
     <script>
         async function loadMovies() {
             try {
                 const response = await fetch('movies.json');
-                if (!response.ok) {
-                    throw new Error(`HTTP error! status: ${response.status}`);
-                }
-                const text = await response.text();
-                if (!text) {
-                    throw new Error('Empty response');
-                }
-                try {
-                    const movies = JSON.parse(text);
-                    displayMovies(movies);
-                } catch (e) {
-                    throw new Error('Invalid JSON format');
-                }
+                const movies = await response.json();
+                const movieGrid = document.getElementById('movieGrid');
+                
+                movies.forEach(movie => {
+                    const card = document.createElement('div');
+                    // 随机生成卡片高度
+                    const height = Math.floor(Math.random() * (600 - 300) + 300);
+                    card.className = 'movie-card';
+                    card.style.height = `${height}px`;
+                    
+                    const imagePath = movie.image_url;  // 直接使用远程图片
+                    const playUrl = 'https://jx.xmflv.cc/?url=' + movie.video_url;
+                    
+                    card.innerHTML = `
+                        <div class="relative h-full">
+                            <img src="${imagePath}" alt="${movie.title}" class="movie-image">
+                            ${movie.is_vip ? '<span class="vip-badge absolute top-2 right-2 px-2 py-1 text-xs text-white rounded">VIP</span>' : ''}
+                            ${movie.score ? `<span class="score-badge absolute top-2 left-2 px-2 py-1 text-xs text-white rounded">${movie.score}</span>` : ''}
+                            <div class="movie-info">
+                                <h3 class="text-lg font-semibold mb-2">${movie.title}</h3>
+                            </div>
+                            <button onclick="playVideo('${playUrl}')" class="play-button">
+                                观看影片
+                            </button>
+                        </div>
+                    `;
+                    
+                    movieGrid.appendChild(card);
+                });
             } catch (error) {
                 console.error('Error loading movies:', error);
                 document.getElementById('movieGrid').innerHTML = `
-                    <div class="col-span-full text-center text-red-500 p-4">
-                        <p class="mb-2">加载电影数据失败</p>
-                        <p class="text-sm">${error.message}</p>
-                        <button onclick="refreshData()" class="mt-4 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600">
-                            点击刷新数据
-                        </button>
+                    <div class="col-span-full text-center text-red-500">
+                        加载电影数据失败，请确保 movies.json 文件存在且格式正确。
                     </div>
                 `;
-            }
-        }
-
-        function displayMovies(movies) {
-            const movieGrid = document.getElementById('movieGrid');
-            movieGrid.innerHTML = ''; // 清空现有内容
-            
-            movies.forEach(movie => {
-                const card = document.createElement('div');
-                // 随机生成卡片高度
-                const height = Math.floor(Math.random() * (600 - 300) + 300);
-                card.className = 'movie-card';
-                card.style.height = `${height}px`;
-                
-                const imagePath = movie.local_image_path || movie.image_url;
-                const playUrl = 'https://jx.xmflv.cc/?url=' + movie.video_url;
-                
-                card.innerHTML = `
-                    <div class="relative h-full">
-                        <img src="${imagePath}" alt="${movie.title}" class="movie-image">
-                        ${movie.is_vip ? '<span class="vip-badge absolute top-2 right-2 px-2 py-1 text-xs text-white rounded">VIP</span>' : ''}
-                        ${movie.score ? `<span class="score-badge absolute top-2 left-2 px-2 py-1 text-xs text-white rounded">${movie.score}</span>` : ''}
-                        <div class="movie-info">
-                            <h3 class="text-lg font-semibold mb-2">${movie.title}</h3>
-                        </div>
-                        <button onclick="playVideo('${playUrl}')" class="play-button">
-                            观看影片
-                        </button>
-                    </div>
-                `;
-                
-                movieGrid.appendChild(card);
-            });
-        }
-
-        async function refreshData() {
-            const loading = document.getElementById('loading');
-            loading.style.display = 'flex';
-            
-            try {
-                const response = await fetch('/api/scrape');
-                if (!response.ok) {
-                    throw new Error(`HTTP error! status: ${response.status}`);
-                }
-                const result = await response.json();
-                
-                if (result.status === 'success') {
-                    await loadMovies();
-                } else {
-                    throw new Error(result.message || 'Unknown error');
-                }
-            } catch (error) {
-                console.error('Error refreshing data:', error);
-                alert(`更新数据失败: ${error.message}`);
-            } finally {
-                loading.style.display = 'none';
             }
         }
 
@@ -324,6 +371,76 @@
             const player = document.getElementById('videoPlayer');
             player.src = '';
             modal.style.display = 'none';
+        }
+
+        function showPasswordModal() {
+            document.getElementById('passwordModal').style.display = 'block';
+        }
+
+        function verifyPassword() {
+            const password = document.getElementById('passwordInput').value;
+            if (password === '881314') {
+                document.getElementById('passwordModal').style.display = 'none';
+                document.getElementById('passwordInput').value = '';
+                refreshData();
+            } else {
+                alert('密码错误！');
+            }
+        }
+
+        async function refreshData() {
+            try {
+                // 显示进度条
+                document.getElementById('progressModal').style.display = 'block';
+                const progressFill = document.getElementById('progressFill');
+                const progressText = document.getElementById('progressText');
+
+                // 模拟进度更新
+                let progress = 0;
+                const progressInterval = setInterval(() => {
+                    progress += 1;
+                    if (progress <= 90) {
+                        progressFill.style.width = `${progress}%`;
+                        progressText.textContent = `正在刷新数据... ${progress}%`;
+                    }
+                }, 100);
+
+                const response = await fetch('/refresh', {
+                    method: 'POST'
+                });
+
+                clearInterval(progressInterval);
+                progressFill.style.width = '100%';
+                progressText.textContent = '刷新完成！';
+
+                if (response.ok) {
+                    // 清空现有内容
+                    document.getElementById('movieGrid').innerHTML = '';
+                    // 重新加载数据
+                    await loadMovies();
+                    
+                    // 延迟关闭进度条
+                    setTimeout(() => {
+                        document.getElementById('progressModal').style.display = 'none';
+                        progressFill.style.width = '0%';
+                    }, 1000);
+                } else {
+                    throw new Error('刷新失败');
+                }
+            } catch (error) {
+                console.error('Error refreshing data:', error);
+                document.getElementById('progressModal').style.display = 'none';
+                alert('数据刷新失败，请稍后重试！');
+            }
+        }
+
+        // 点击密码弹窗外部关闭弹窗
+        window.onclick = function(event) {
+            const modal = document.getElementById('passwordModal');
+            if (event.target === modal) {
+                modal.style.display = 'none';
+                document.getElementById('passwordInput').value = '';
+            }
         }
 
         // 点击模态框外部关闭
